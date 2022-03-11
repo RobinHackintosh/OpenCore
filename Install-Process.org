@@ -1,0 +1,59 @@
+* 在PC上安装黑苹果系统(Gigabytes x570 aorus master + AMD 5900X + 6800XT)
+** 综述
+   根据特定的硬件组合制作一个微型EFI引导U盘，此U盘可以给MacOS hack进一些内核驱动
+   整个过程就是根据我们电脑的硬件组合以及要安装的对应MacOS版本来把对应的文件放到对应的位置就可以了，U盘会自动引导
+   
+   我的主机，三系统: win10, linux, 以及即将要安装的MacOS，分别装在三个硬盘上
+
+** 先决条件
+   source: https://dortania.github.io/OpenCore-Install-Guide/prerequisites.html#prerequisites
+   1. 时间以及耐心
+   2. 列出自己的硬件清单，并上网查阅资料确认清单中的硬件是否可被Mac系统识别，最主要的包括CPU，显卡， 网卡，硬盘，声卡
+   3. 对命名行及终端使用有基本的认知
+   4. 最少win/linux下，最少4G大小的U盘， mac系统下制作，则需要16G大小
+   5. 网络连接
+   6. windows/linux/mac系统
+      
+** 获取硬件参数
+   硬件清单：
+   1. 主板型号: X570 AORUS MASTER (rev. 1.2)
+   2. 声卡:     Realtek ALC1220
+   3. 有线网卡: Intel(R) I211 Gigabit Network Connection
+               Realtek PCIe 2.5GbE Family Controller
+   4. 无线网卡：Intel(R) Wi-Fi 6 AX200 160MHz
+   5. CPU：   AMD 5900x
+   6. GPU：   撼讯6800xt 16GB
+   7. 内存条： 金士顿 (Kingston) FURY 32GB DDR4 3600  Beast野兽系列 骇客神条
+   8. 硬盘：   三星 980PRO 1T (NVMe) (Win10)
+              三星 980PRO 1T (NVMe) (MacOS)
+              三星 860EVO 500G SSD (Linux)
+   
+** 制作U盘
+   由于大多数人在安装之前都会存在一个windows系统的主机，所以此次U盘的制作在windows上进行
+
+** windows上推荐安装的软件:
+   - AIDA64 engineer版本，主要用于查看硬件配置，并且后续提取dsdt也可以用此软件来提取
+   - DiskGenius，可选，格式化硬盘，或者查看硬盘分区树，挺有用的
+   - rufus，烧录U盘，必备
+  
+** 根据硬件收集驱动文件
+*** Firmware Drivers（固件驱动）
+
+*** 系统内核驱动文件（Kexts）
+
+*** SSDTs
+    
+*** config.plist文件配置
+
+** 更改BIOS
+
+** 进行安装
+   碰到的问题，boot-args中少针对6800xt(navi)架构的指令，加入即可
+    
+** 安装完成后
+*** 小米显示器严重发白
+*** Windows系统时间显示问题
+*** 音频Layout Id获取
+*** 隔空投送问题
+*** OpenCore图形界面(可选)
+*** SSDT完善

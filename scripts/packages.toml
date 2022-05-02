@@ -1,0 +1,86 @@
+desc = "黑苹果系统安装包配置"
+
+[OpenCore]
+owner="acidanthera"
+repo="OpenCorePkg"
+version=""
+
+[[FirmwareDrivers]]
+driver = "HfsPlus.efi"
+update_strategy="by_file_commit_history"
+owner="acidanthera"
+repo="OcBinaryData"
+path="Drivers/HfsPlus.efi"
+latest_commit_time=""
+
+[[FirmwareDrivers]]
+driver = "OpenRuntime.efi"
+update_strategy="in_oc_release"
+path="X64/EFI/OC/Drivers/OpenRuntime.efi"
+latest_commit_time=""
+
+version = ""
+
+[[Kexts]]
+name = "kernel extension"
+
+[[Kexts.MustHave]]
+name = "VirtualSMC"
+owner="acidanthera"
+repo="VirtualSMC"
+version = ""
+
+[[Kexts.MustHave]]
+name = "Lilu"
+owner="acidanthera"
+repo="Lilu"
+version = ""
+
+[[Kexts.Graphics]]
+name = "WhateverGreen"
+owner="acidanthera"
+repo="WhateverGreen"
+version= ""
+
+[[Kexts.Audio]]
+name = "AppleALC"
+owner="acidanthera"
+repo="AppleALC"
+version = ""
+
+[[Kexts.Ethernet]]
+name = "SmallTreeIntel82576"
+owner="khronokernel"
+repo="SmallTree-I211-AT-patch"
+version = ""
+
+[[Kexts.Ethernet]]
+name = "LucyRTL8125Ethernet"
+owner="Mieze"
+repo="LucyRTL8125Ethernet"
+version = ""
+
+[[Kexts.WiFi]]
+name = "AirportItlwm"
+owner="OpenIntelWireless"
+repo="itlwm"
+version = ""
+
+[[Kexts.Bluetooth]]
+name = "IntelBluetoothFirmware"
+owner="OpenIntelWireless"
+repo="IntelBluetoothFirmware"
+version = ""
+
+[[Kexts.Extras]]
+name="AppleMCEReporterDisabler"
+owner="acidanthera"
+repo="Lilu"
+version = ""
+enable = false
+
+[[Kexts.Extras]]
+name = "NVMeFix"
+owner="acidanthera"
+repo="Lilu"
+version = ""

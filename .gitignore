@@ -1,4 +1,6 @@
 *.org~
 .venv/
 .vscode/
-__pycache__
+__pycache__a
+.idea/
+*.pyc

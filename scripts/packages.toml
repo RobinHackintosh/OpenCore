@@ -1,86 +1,92 @@
 desc = "黑苹果系统安装包配置"
-
-[OpenCore]
-owner="acidanthera"
-repo="OpenCorePkg"
-version=""
-
 [[FirmwareDrivers]]
 driver = "HfsPlus.efi"
-update_strategy="by_file_commit_history"
-owner="acidanthera"
-repo="OcBinaryData"
-path="Drivers/HfsPlus.efi"
-latest_commit_time=""
+update_strategy = "by_file_commit_history"
+owner = "acidanthera"
+repo = "OcBinaryData"
+path = "Drivers/HfsPlus.efi"
+latest_commit_date = 0
 
 [[FirmwareDrivers]]
 driver = "OpenRuntime.efi"
-update_strategy="in_oc_release"
-path="X64/EFI/OC/Drivers/OpenRuntime.efi"
-latest_commit_time=""
-
-version = ""
+update_strategy = "in_oc_release"
+path = "X64/EFI/OC/Drivers/OpenRuntime.efi"
 
 [[Kexts]]
 name = "kernel extension"
-
 [[Kexts.MustHave]]
 name = "VirtualSMC"
-owner="acidanthera"
-repo="VirtualSMC"
+owner = "acidanthera"
+repo = "VirtualSMC"
 version = ""
 
 [[Kexts.MustHave]]
 name = "Lilu"
-owner="acidanthera"
-repo="Lilu"
+owner = "acidanthera"
+repo = "Lilu"
 version = ""
 
 [[Kexts.Graphics]]
 name = "WhateverGreen"
-owner="acidanthera"
-repo="WhateverGreen"
-version= ""
+owner = "acidanthera"
+repo = "WhateverGreen"
+version = ""
 
 [[Kexts.Audio]]
 name = "AppleALC"
-owner="acidanthera"
-repo="AppleALC"
+owner = "acidanthera"
+repo = "AppleALC"
 version = ""
 
 [[Kexts.Ethernet]]
 name = "SmallTreeIntel82576"
-owner="khronokernel"
-repo="SmallTree-I211-AT-patch"
+owner = "khronokernel"
+repo = "SmallTree-I211-AT-patch"
 version = ""
 
 [[Kexts.Ethernet]]
 name = "LucyRTL8125Ethernet"
-owner="Mieze"
-repo="LucyRTL8125Ethernet"
+owner = "Mieze"
+repo = "LucyRTL8125Ethernet"
 version = ""
 
 [[Kexts.WiFi]]
 name = "AirportItlwm"
-owner="OpenIntelWireless"
-repo="itlwm"
+owner = "OpenIntelWireless"
+repo = "itlwm"
+published_at = 2022-01-01T00:50:04Z
 version = ""
 
 [[Kexts.Bluetooth]]
 name = "IntelBluetoothFirmware"
-owner="OpenIntelWireless"
-repo="IntelBluetoothFirmware"
+owner = "OpenIntelWireless"
+repo = "IntelBluetoothFirmware"
 version = ""
 
 [[Kexts.Extras]]
-name="AppleMCEReporterDisabler"
-owner="acidanthera"
-repo="Lilu"
+name = "AppleMCEReporterDisabler"
+owner = "acidanthera"
+repo = "Lilu"
 version = ""
 enable = false
 
 [[Kexts.Extras]]
 name = "NVMeFix"
-owner="acidanthera"
-repo="Lilu"
+owner = "acidanthera"
+repo = "Lilu"
 version = ""
+
+
+[OpenCore]
+owner = "acidanthera"
+repo = "OpenCorePkg"
+publish_date = 2022-04-18T10:43:22
+
+[EFI_DIR]
+boot = "BOOT"
+oc = "OC"
+acpi = "OC/ACPI"
+drivers = "OC/Drivers"
+kexts = "OC/Kexts"
+resources = "OC/Resources"
+tools = "OC/Tools"

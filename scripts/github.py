@@ -11,7 +11,7 @@ def get_latest_release_info(owner: string, repo: string):
     return _get(api_address)
 
 
-def has_new_release(local_publish_date, owner: string, repo: string) -> (bool, str, dict):
+def has_new_release(local_publish_date, owner: str, repo: str) -> (bool, str, dict):
     release_info = get_latest_release_info(owner, repo)
     remote_publish_date = release_info["published_at"]
     assets = release_info["assets"]
@@ -26,12 +26,19 @@ def has_new_release(local_publish_date, owner: string, repo: string) -> (bool, s
 
 
 # api: https://api.github.com/repos/:owner/:repo/commits?path=:file_path
-def get_file_commit_info(owner: string, repo: string, file_path: string):
-    api_template = Template(
-        "https://api.github.com/repos/${owner}/${repo}/commits?path=${repo}")
-    api_address = api_template.substitute(
-        owner=owner, repo=repo, file_path=file_path)
+def get_file_commit_history(owner: str, repo: str, file_path: str):
+    api_address = f"https://api.github.com/repos/{owner}/{repo}/commits?path={file_path}"
+    print(api_address)
     return _get(api_address)
+
+
+def has_new_commit(owner: str, repo: str, file_path: str, commit_date: datetime) -> (bool, datetime):
+    commit_history = get_file_commit_history(owner, repo, file_path)
+    latest_commit_info = commit_history[0]
+    latest_commit_date = datetime.strptime(latest_commit_info["commit"]["committer"]["date"],
+                                           "%Y-%m-%dT%H:%M:%SZ")
+    should_update = latest_commit_date.timestamp() > commit_date.timestamp()
+    return should_update, latest_commit_date
 
 
 def _get(api: string):

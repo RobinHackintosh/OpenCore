@@ -1,86 +1,93 @@
 desc = "黑苹果系统安装包配置"
 [[FirmwareDrivers]]
-driver = "HfsPlus.efi"
+name = "HfsPlus.efi"
 update_strategy = "by_file_commit_history"
 owner = "acidanthera"
 repo = "OcBinaryData"
 path = "Drivers/HfsPlus.efi"
-latest_commit_date = 0
+commit_date = 2021-11-01T17:17:40Z
 
 [[FirmwareDrivers]]
-driver = "OpenRuntime.efi"
+name = "OpenRuntime.efi"
 update_strategy = "in_oc_release"
 path = "X64/EFI/OC/Drivers/OpenRuntime.efi"
 
-[[Kexts]]
-name = "kernel extension"
-[[Kexts.MustHave]]
-name = "VirtualSMC"
+[Kexts.VirtualSMC]
+kextType = "MustHave"
 owner = "acidanthera"
 repo = "VirtualSMC"
-version = ""
+publish_date = 1900-01-01T00:00:00Z
 
-[[Kexts.MustHave]]
-name = "Lilu"
+[Kexts.Lilu]
+kextType = "MustHave"
 owner = "acidanthera"
 repo = "Lilu"
-version = ""
+publish_date = 1900-01-01T00:00:00Z
 
-[[Kexts.Graphics]]
+[Kexts.WhateverGreen]
+kextType = "Graphics"
 name = "WhateverGreen"
 owner = "acidanthera"
 repo = "WhateverGreen"
-version = ""
+publish_date = 1900-01-01T00:00:00Z
 
-[[Kexts.Audio]]
-name = "AppleALC"
+[Kexts.AppleALC]
+kextType = "Audio"
 owner = "acidanthera"
 repo = "AppleALC"
-version = ""
+publish_date = 1900-01-01T00:00:00Z
 
-[[Kexts.Ethernet]]
-name = "SmallTreeIntel82576"
+[Kexts.SmallTreeIntel82576]
+kextType = "Ethernet"
 owner = "khronokernel"
 repo = "SmallTree-I211-AT-patch"
-version = ""
+publish_date = 1900-01-01T00:00:00Z
 
-[[Kexts.Ethernet]]
-name = "LucyRTL8125Ethernet"
+[Kexts.LucyRTL8125Ethernet]
+kextType = "Ethernet"
 owner = "Mieze"
 repo = "LucyRTL8125Ethernet"
-version = ""
+publish_date = 1900-01-01T00:00:00Z
 
-[[Kexts.WiFi]]
-name = "AirportItlwm"
+[Kexts.AirportItlwm]
+kextType = "WiFi"
 owner = "OpenIntelWireless"
 repo = "itlwm"
-published_at = 2022-01-01T00:50:04Z
-version = ""
+published_at = 1900-01-01T00:50:04Z
 
-[[Kexts.Bluetooth]]
-name = "IntelBluetoothFirmware"
+[Kexts.IntelBluetoothFirmware]
+kextType = "Bluetooth"
 owner = "OpenIntelWireless"
 repo = "IntelBluetoothFirmware"
-version = ""
+publish_date = 1900-01-01T00:00:00Z
 
-[[Kexts.Extras]]
-name = "AppleMCEReporterDisabler"
+[Kexts.BrcmPatchRAM]
+kextType = "Bluetooth"
 owner = "acidanthera"
-repo = "Lilu"
-version = ""
-enable = false
+repo = "BrcmPatchRAM"
+publish_date = 1900-01-01T00:00:00Z
 
-[[Kexts.Extras]]
-name = "NVMeFix"
+[Kexts.AppleMCEReporterDisabler]
+kextType = "Extras"
+browserDownloadUrl = "https://github.com/acidanthera/bugtracker/files/3703498/AppleMCEReporterDisabler.kext.zip"
+publish_date = 1900-01-01T00:00:00Z
+
+[Kexts.NVMeFix]
+kextType = "Extras"
 owner = "acidanthera"
-repo = "Lilu"
-version = ""
+repo = "NVMeFix"
+publish_date = 1900-01-01T00:00:00Z
 
+[SSDT]
+owner = "dortania"
+repo = "Getting-Started-With-ACPI"
+path = "extra-files/compiled/SSDT-EC-USBX-DESKTOP.aml"
 
 [OpenCore]
 owner = "acidanthera"
 repo = "OpenCorePkg"
-publish_date = 2022-04-18T10:43:22
+macVersion = "Monterey"
+publish_date = 2022-04-18T10:43:22Z
 
 [EFI_DIR]
 boot = "BOOT"

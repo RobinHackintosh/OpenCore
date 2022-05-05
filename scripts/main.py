@@ -9,6 +9,4 @@ def pretty_json(origin_data):
 
 
 opencore = OpenCore(os.path.join(ROOT_DIR, "packages.toml"))
-need_update, remote_publish_date, assets = opencore.check_opencore()
-if need_update:
-    opencore.update_opencore(remote_publish_date, assets)
+opencore.update()

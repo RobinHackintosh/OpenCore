@@ -39,6 +39,18 @@ def un_zip(file_name: str, dest_location: str):
         zip_file.close()
 
 
+def cp(src: str, dst: str):
+    if os.path.isdir(src):
+        # delete folder if exist in destination
+        basename = os.path.basename(src)
+        if os.path.exists(os.path.join(dst, basename)):
+            shutil.rmtree(os.path.join(dst, basename))
+
+        shutil.copytree(src, os.path.join(dst, basename))
+    else:
+        shutil.copy2(src, dst)
+
+
 def _test():
     _url = "https://github.com/acidanthera/OpenCorePkg/releases/download/0.8.0/OpenCore-0.8.0-DEBUG.zip"
     from constant import DOWNLOAD_PATH
@@ -51,6 +63,5 @@ def _test():
         os.makedirs(unzip_to)
 
     un_zip(store_path, unzip_to)
-
 
 # _test()

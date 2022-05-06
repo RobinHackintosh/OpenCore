@@ -5,7 +5,4 @@ __pycache__a
 .idea/
 *.pyc
 
-EFI/
-EFI_DEBUG/
-EFI_RELEASE/
 tmp/

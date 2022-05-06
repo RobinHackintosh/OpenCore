@@ -1,4 +1,4 @@
-desc = "黑苹果系统安装包配置"
+desc = "OpenCore Configuration File Auto Download"
 [[FirmwareDrivers]]
 name = "HfsPlus.efi"
 update_strategy = "by_file_commit_history"
@@ -12,48 +12,72 @@ name = "OpenRuntime.efi"
 update_strategy = "in_oc_release"
 path = "X64/EFI/OC/Drivers/OpenRuntime.efi"
 
+[Basic]
+fresh_update = false
+
+[SSDT]
+owner = "dortania"
+repo = "Getting-Started-With-ACPI"
+path = "extra-files/compiled/SSDT-EC-USBX-DESKTOP.aml"
+
+[OpenCore]
+owner = "acidanthera"
+repo = "OpenCorePkg"
+macVersion = "Monterey"
+publish_date = 2022-04-18T10:43:22
+
+[EFI_DIR]
+boot = "BOOT"
+oc = "OC"
+acpi = "OC/ACPI"
+drivers = "OC/Drivers"
+kexts = "OC/Kexts"
+resources = "OC/Resources"
+tools = "OC/Tools"
+
 [Kexts.VirtualSMC]
 kextType = "MustHave"
 owner = "acidanthera"
 repo = "VirtualSMC"
-publish_date = 1900-01-01T00:00:00Z
+publish_date = 2022-03-07T17:40:19
 
 [Kexts.Lilu]
 kextType = "MustHave"
 owner = "acidanthera"
 repo = "Lilu"
-publish_date = 1900-01-01T00:00:00Z
+publish_date = 2022-02-07T17:41:37
 
 [Kexts.WhateverGreen]
 kextType = "Graphics"
 name = "WhateverGreen"
 owner = "acidanthera"
 repo = "WhateverGreen"
-publish_date = 1900-01-01T00:00:00Z
+publish_date = 2022-03-07T17:40:49
 
 [Kexts.AppleALC]
 kextType = "Audio"
 owner = "acidanthera"
 repo = "AppleALC"
-publish_date = 1900-01-01T00:00:00Z
+publish_date = 2022-04-18T15:57:36
 
 [Kexts.SmallTreeIntel82576]
 kextType = "Ethernet"
 owner = "khronokernel"
 repo = "SmallTree-I211-AT-patch"
 publish_date = 1900-01-01T00:00:00Z
+enable = false
 
 [Kexts.LucyRTL8125Ethernet]
 kextType = "Ethernet"
 owner = "Mieze"
 repo = "LucyRTL8125Ethernet"
-publish_date = 1900-01-01T00:00:00Z
+publish_date = 2021-04-29T18:54:39
 
 [Kexts.AirportItlwm]
 kextType = "WiFi"
 owner = "OpenIntelWireless"
 repo = "itlwm"
-published_at = 1900-01-01T00:50:04Z
+publish_date = 2022-01-01T00:50:04
 
 [Kexts.IntelBluetoothFirmware]
 kextType = "Bluetooth"
@@ -78,22 +102,14 @@ owner = "acidanthera"
 repo = "NVMeFix"
 publish_date = 1900-01-01T00:00:00Z
 
-[SSDT]
-owner = "dortania"
-repo = "Getting-Started-With-ACPI"
-path = "extra-files/compiled/SSDT-EC-USBX-DESKTOP.aml"
-
-[OpenCore]
+[Kexts.RestrictEvents]
+kextType = "Extras"
 owner = "acidanthera"
-repo = "OpenCorePkg"
-macVersion = "Monterey"
-publish_date = 2022-04-18T10:43:22Z
+repo = "RestrictEvents"
+publish_date = 1900-01-01T00:00:00Z
 
-[EFI_DIR]
-boot = "BOOT"
-oc = "OC"
-acpi = "OC/ACPI"
-drivers = "OC/Drivers"
-kexts = "OC/Kexts"
-resources = "OC/Resources"
-tools = "OC/Tools"
+[Kexts.SMCAMDProcessor]
+kextType = "CPU"
+owner = "trulyspinach"
+repo = "SMCAMDProcessor"
+publish_date = 2021-07-30T13:23:04

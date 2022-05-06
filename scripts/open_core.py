@@ -2,7 +2,7 @@ import os.path
 import string
 import toml
 import github
-import typing
+from typing import Tuple, Any
 from datetime import datetime
 from utils import file_utils
 from constant import ROOT_DIR, DOWNLOAD_PATH
@@ -13,61 +13,52 @@ class OpenCore:
         self.download_folder = "tmp"
         self.config_file = config_file
         self.config = toml.load(config_file)
+        self.fresh_update = self.config["Basic"]["fresh_update"]
+        self.mkdirs()
         pass
 
     def update(self):
         # opencore core file
-        need_update, remote_publish_date, assets = self.check_opencore()
-        if need_update:
-            self.update_opencore(remote_publish_date, assets)
+        self.update_opencore()
 
         # firmware drivers
         self.update_firmware()
 
-        self._update_virtual_smc()
-        self._update_lilu()
-        self._update_whatever_green()
-        self._update_apple_alc()
-        self._update_small_tree_intel82576()
-        self._update_lucy_rtl8125_ethernet()
-        self._update_airport_itlwm()
-        self._update_intel_bluetooth_firmware()
-        self._update_apple_mce_reporter_disabler()
-        self._update_nvme_fix()
-        pass
+        # kexts and some other files like small config applications.
+        self.update_kext()
 
-    def check_opencore(self) -> typing.Tuple[bool, str, dict]:
+    def check_opencore(self) -> Tuple[bool, str, dict]:
         publish_date = self.config["OpenCore"]["publish_date"]
         owner = self.config["OpenCore"]["owner"]
         repo = self.config["OpenCore"]["repo"]
 
         return github.has_new_release(publish_date, owner, repo)
 
-    def update_opencore(self, remote_publish_date, assets: dict):
-        self.mkdirs()
+    def update_opencore(self):
+        need_update, remote_publish_date, assets = self.check_opencore()
+        if self.fresh_update or need_update:
+            for asset in assets:
+                download_url: str = asset["browser_download_url"]
 
-        for asset in assets:
-            download_url: str = asset["browser_download_url"]
+                dbg_or_release = "DEBUG" if "DEBUG" in download_url.upper() else "RELEASE"
 
-            dbg_or_release = "DEBUG" if "DEBUG" in download_url.upper() else "RELEASE"
+                src_relative = "X64/EFI/BOOT/BOOTx64.efi"
+                dst = self.efi_boot_dir(dbg_or_release)
+                src_dst_set = {(src_relative, dst)}
 
-            src_relative = "X64/EFI/BOOT/BOOTx64.efi"
-            dst = self.efi_boot_dir(dbg_or_release)
-            src_dst_set = {(src_relative, dst)}
+                src_relative = "X64/EFI/OC/Drivers/OpenRuntime.efi"
+                dst = self.efi_drivers_dir(dbg_or_release)
+                src_dst_set.add((src_relative, dst))
 
-            src_relative = "X64/EFI/OC/Drivers/OpenRuntime.efi"
-            dst = self.efi_drivers_dir(dbg_or_release)
-            src_dst_set.add((src_relative, dst))
+                src_relative = "X64/EFI/OC/Tools/OpenShell.efi"
+                dst = self.efi_tools_dir(dbg_or_release)
+                src_dst_set.add((src_relative, dst))
 
-            src_relative = "X64/EFI/OC/Tools/OpenShell.efi"
-            dst = self.efi_tools_dir(dbg_or_release)
-            src_dst_set.add((src_relative, dst))
+                src_relative = "X64/EFI/OC/OpenCore.efi"
+                dst = self.efi_oc_dir(dbg_or_release)
+                src_dst_set.add((src_relative, dst))
 
-            src_relative = "X64/EFI/OC/OpenCore.efi"
-            dst = self.efi_oc_dir(dbg_or_release)
-            src_dst_set.add((src_relative, dst))
-
-            self.deal_asset(download_url, src_dst_set)
+                self.deal_asset(download_url, src_dst_set)
 
             self.config["OpenCore"]["publish_date"] = datetime.strptime(remote_publish_date,
                                                                         "%Y-%m-%dT%H:%M:%SZ")
@@ -84,41 +75,46 @@ class OpenCore:
                 os.makedirs(full_release_dir)
 
     def efi_boot_dir(self, dbg_or_release: str) -> str:
-        return os.path.join(ROOT_DIR, "EFI_" + dbg_or_release.upper(), self.config["EFI_DIR"]["boot"])
+        _dir = os.path.join(ROOT_DIR, "EFI_" + dbg_or_release.upper(), self.config["EFI_DIR"]["boot"])
+        if not os.path.exists(_dir):
+            os.makedirs(_dir)
+        return _dir
 
     def efi_oc_dir(self, dbg_or_release: str) -> str:
         _dir = os.path.join(ROOT_DIR, "EFI_" + dbg_or_release.upper(), self.config["EFI_DIR"]["oc"])
         if not os.path.exists(_dir):
             os.makedirs(_dir)
-
         return _dir
 
     def efi_acpi_dir(self, dbg_or_release: str) -> str:
         _dir = os.path.join(ROOT_DIR, "EFI_" + dbg_or_release.upper(), self.config["EFI_DIR"]["acpi"])
         if not os.path.exists(_dir):
             os.makedirs(_dir)
-
         return _dir
 
     def efi_drivers_dir(self, dbg_or_release: str) -> str:
         _dir = os.path.join(ROOT_DIR, "EFI_" + dbg_or_release.upper(), self.config["EFI_DIR"]["drivers"])
         if not os.path.exists(_dir):
             os.makedirs(_dir)
-
         return _dir
 
     def efi_kexts_dir(self, dbg_or_release: str) -> str:
         _dir = os.path.join(ROOT_DIR, "EFI_" + dbg_or_release.upper(), self.config["EFI_DIR"]["kexts"])
         if not os.path.exists(_dir):
             os.makedirs(_dir)
-
         return _dir
 
     def efi_tools_dir(self, dbg_or_release: str) -> str:
         _dir = os.path.join(ROOT_DIR, "EFI_" + dbg_or_release.upper(), self.config["EFI_DIR"]["tools"])
         if not os.path.exists(_dir):
             os.makedirs(_dir)
+        return _dir
 
+    @staticmethod
+    def app_dir() -> str:
+        _dir = os.path.join(ROOT_DIR, "Applications")
+        if not os.path.exists(_dir):
+            os.makedirs(_dir)
         return _dir
 
     def update_firmware(self):
@@ -142,20 +138,31 @@ class OpenCore:
                 print(f"driver {driver['name']}'s update strategy is follow the opencore core, so just leave it alone")
             else:
                 print(f"error, invalid update strategy: {driver['update_strategy']} in driver {driver['name']}")
-        pass
-
-    def check_kext_version(self):
-        pass
 
     def update_kext(self):
-        pass
+        self._update_virtual_smc()
+        self._update_lilu()
+        self._update_whatever_green()
+        self._update_apple_alc()
+        self._update_small_tree_intel82576()
+        self._update_lucy_rtl8125_ethernet()
+        self._update_airport_itlwm()
+        self._update_intel_bluetooth_firmware()
+        self._update_apple_mce_reporter_disabler()
+        self._update_nvme_fix()
+        self._update_restrict_events()
+        self._update_smc_amd_processor()
 
     def _update_virtual_smc(self):
         owner = self.config["Kexts"]["VirtualSMC"]["owner"]
         repo = self.config["Kexts"]["VirtualSMC"]["repo"]
         publish_date = self.config["Kexts"]["VirtualSMC"]["publish_date"]
         file_rel_path = "Kexts/VirtualSMC.kext"
-        self._deal_normal_kexts(owner, repo, publish_date, file_rel_path)
+        is_updated, remote_publish_date = self._deal_normal_kexts(owner, repo, publish_date, file_rel_path)
+        if is_updated:
+            self.config["Kexts"]["VirtualSMC"]["publish_date"] = datetime.strptime(remote_publish_date,
+                                                                                   "%Y-%m-%dT%H:%M:%SZ")
+            toml.dump(self.config, open(self.config_file, 'w', encoding="utf-8"))
 
     def _update_lilu(self):
         owner = self.config["Kexts"]["Lilu"]["owner"]
@@ -163,7 +170,11 @@ class OpenCore:
         publish_date = self.config["Kexts"]["Lilu"]["publish_date"]
         file_rel_path = "Lilu.kext"
 
-        self._deal_normal_kexts(owner, repo, publish_date, file_rel_path)
+        is_updated, remote_publish_date = self._deal_normal_kexts(owner, repo, publish_date, file_rel_path)
+        if is_updated:
+            self.config["Kexts"]["Lilu"]["publish_date"] = datetime.strptime(remote_publish_date,
+                                                                             "%Y-%m-%dT%H:%M:%SZ")
+            toml.dump(self.config, open(self.config_file, 'w', encoding="utf-8"))
 
     def _update_whatever_green(self):
         owner = self.config["Kexts"]["WhateverGreen"]["owner"]
@@ -171,7 +182,11 @@ class OpenCore:
         publish_date = self.config["Kexts"]["WhateverGreen"]["publish_date"]
         file_rel_path = "WhateverGreen.kext"
 
-        self._deal_normal_kexts(owner, repo, publish_date, file_rel_path)
+        is_updated, remote_publish_date = self._deal_normal_kexts(owner, repo, publish_date, file_rel_path)
+        if is_updated:
+            self.config["Kexts"]["WhateverGreen"]["publish_date"] = datetime.strptime(remote_publish_date,
+                                                                                      "%Y-%m-%dT%H:%M:%SZ")
+            toml.dump(self.config, open(self.config_file, 'w', encoding="utf-8"))
 
     def _update_apple_alc(self):
         owner = self.config["Kexts"]["AppleALC"]["owner"]
@@ -179,15 +194,26 @@ class OpenCore:
         publish_date = self.config["Kexts"]["AppleALC"]["publish_date"]
         file_rel_path = "AppleALC.kext"
 
-        self._deal_normal_kexts(owner, repo, publish_date, file_rel_path)
+        is_updated, remote_publish_date = self._deal_normal_kexts(owner, repo, publish_date, file_rel_path)
+        if is_updated:
+            self.config["Kexts"]["AppleALC"]["publish_date"] = datetime.strptime(remote_publish_date,
+                                                                                 "%Y-%m-%dT%H:%M:%SZ")
+            toml.dump(self.config, open(self.config_file, 'w', encoding="utf-8"))
 
     def _update_small_tree_intel82576(self):
-        owner = self.config["Kexts"]["SmallTreeIntel82576"]["owner"]
-        repo = self.config["Kexts"]["SmallTreeIntel82576"]["repo"]
-        publish_date = self.config["Kexts"]["SmallTreeIntel82576"]["publish_date"]
-        file_rel_path = "SmallTreeIntel82576.kext"
+        is_enable = self.config["Kexts"]["SmallTreeIntel82576"]["enable"]
 
-        self._deal_normal_kexts(owner, repo, publish_date, file_rel_path)
+        if is_enable:
+            owner = self.config["Kexts"]["SmallTreeIntel82576"]["owner"]
+            repo = self.config["Kexts"]["SmallTreeIntel82576"]["repo"]
+            publish_date = self.config["Kexts"]["SmallTreeIntel82576"]["publish_date"]
+            file_rel_path = "SmallTreeIntel82576.kext"
+
+            is_updated, remote_publish_date = self._deal_normal_kexts(owner, repo, publish_date, file_rel_path)
+            if is_updated:
+                self.config["Kexts"]["SmallTreeIntel82576"]["publish_date"] = datetime.strptime(remote_publish_date,
+                                                                                                "%Y-%m-%dT%H:%M:%SZ")
+                toml.dump(self.config, open(self.config_file, 'w', encoding="utf-8"))
 
     def _update_lucy_rtl8125_ethernet(self):
         owner = self.config["Kexts"]["LucyRTL8125Ethernet"]["owner"]
@@ -196,7 +222,7 @@ class OpenCore:
 
         need_update, remote_publish_date, assets = github.has_new_release(publish_date, owner, repo)
 
-        if need_update:
+        if self.fresh_update or need_update:
             for asset in assets:
                 download_url: str = asset["browser_download_url"]
 
@@ -209,6 +235,10 @@ class OpenCore:
 
                 self.deal_asset(download_url, src_dst_set)
 
+            self.config["Kexts"]["LucyRTL8125Ethernet"]["publish_date"] = datetime.strptime(remote_publish_date,
+                                                                                            "%Y-%m-%dT%H:%M:%SZ")
+            toml.dump(self.config, open(self.config_file, 'w', encoding="utf-8"))
+
     def _update_airport_itlwm(self):
         owner = self.config["Kexts"]["AirportItlwm"]["owner"]
         repo = self.config["Kexts"]["AirportItlwm"]["repo"]
@@ -216,7 +246,7 @@ class OpenCore:
 
         need_update, remote_publish_date, assets = github.has_new_release(publish_date, owner, repo)
 
-        if need_update:
+        if self.fresh_update or need_update:
             for asset in assets:
                 if "itlwm" in asset["name"]:
                     download_url: str = asset["browser_download_url"]
@@ -230,12 +260,16 @@ class OpenCore:
                 elif self.config["OpenCore"]["macVersion"] in asset["name"]:
                     download_url: str = asset["browser_download_url"]
                     dst_dir = self.efi_kexts_dir("DEBUG")
-                    src_dst_set = {(f"{self.config['OpenCore']['macVersion']}AirportItlwm.kext", dst_dir)}
+                    src_dst_set = {(f"{self.config['OpenCore']['macVersion']}/AirportItlwm.kext", dst_dir)}
 
                     dst_dir = self.efi_kexts_dir("RELEASE")
-                    src_dst_set.add((f"{self.config['OpenCore']['macVersion']}AirportItlwm.kext", dst_dir))
+                    src_dst_set.add((f"{self.config['OpenCore']['macVersion']}/AirportItlwm.kext", dst_dir))
 
                     self.deal_asset(download_url, src_dst_set)
+
+            self.config["Kexts"]["AirportItlwm"]["publish_date"] = datetime.strptime(remote_publish_date,
+                                                                                     "%Y-%m-%dT%H:%M:%SZ")
+            toml.dump(self.config, open(self.config_file, 'w', encoding="utf-8"))
 
     def _update_intel_bluetooth_firmware(self):
         owner = self.config["Kexts"]["IntelBluetoothFirmware"]["owner"]
@@ -276,10 +310,48 @@ class OpenCore:
 
         self._deal_normal_kexts(owner, repo, publish_date, file_rel_path)
 
-    def _deal_normal_kexts(self, owner, repo, publish_date, file_rel_path):
+    def _update_restrict_events(self):
+        owner = self.config["Kexts"]["RestrictEvents"]["owner"]
+        repo = self.config["Kexts"]["RestrictEvents"]["repo"]
+        publish_date = self.config["Kexts"]["RestrictEvents"]["publish_date"]
+        file_rel_path = "RestrictEvents.kext"
+
+        self._deal_normal_kexts(owner, repo, publish_date, file_rel_path)
+
+    def _update_smc_amd_processor(self):
+        owner = self.config["Kexts"]["SMCAMDProcessor"]["owner"]
+        repo = self.config["Kexts"]["SMCAMDProcessor"]["repo"]
+        publish_date = self.config["Kexts"]["SMCAMDProcessor"]["publish_date"]
+        need_update, remote_publish_date, assets = github.has_new_release(publish_date, owner, repo)
+        if self.fresh_update or need_update:
+            for asset in assets:
+                if "AMD.Power.Gadget.app" in asset["name"]:
+                    unzip_to = self.download_and_unzip(asset["browser_download_url"])
+                    src = os.path.join(unzip_to, "AMD Power Gadget.app")
+                    file_utils.cp(src, self.app_dir())
+                elif "AMDRyzenCPUPowerManagement.kext" in asset["name"]:
+                    unzip_to = self.download_and_unzip(asset["browser_download_url"])
+                    src = os.path.join(unzip_to, "AMDRyzenCPUPowerManagement.kext")
+                    file_utils.cp(src, self.efi_kexts_dir("DEBUG"))
+                    file_utils.cp(src, self.efi_kexts_dir("RELEASE"))
+                    pass
+                elif "SMCAMDProcessor.kext" in asset["name"]:
+                    unzip_to = self.download_and_unzip(asset["browser_download_url"])
+                    src = os.path.join(unzip_to, "SMCAMDProcessor.kext")
+                    file_utils.cp(src, self.efi_kexts_dir("DEBUG"))
+                    file_utils.cp(src, self.efi_kexts_dir("RELEASE"))
+                    pass
+                else:
+                    print("Known asset in smc amd processor")
+
+            self.config["Kexts"]["SMCAMDProcessor"]["publish_date"] = datetime.strptime(remote_publish_date,
+                                                                                        "%Y-%m-%dT%H:%M:%SZ")
+            toml.dump(self.config, open(self.config_file, 'w', encoding="utf-8"))
+
+    def _deal_normal_kexts(self, owner, repo, publish_date, file_rel_path) -> Tuple[bool, Any]:
         need_update, remote_publish_date, assets = github.has_new_release(publish_date, owner, repo)
 
-        if need_update:
+        if self.fresh_update or need_update:
             for asset in assets:
                 download_url: str = asset["browser_download_url"]
                 if "DEBUG" not in download_url and "RELEASE" not in download_url:
@@ -294,6 +366,10 @@ class OpenCore:
                     src_dst_set = {(file_rel_path, dst_dir)}
 
                 self.deal_asset(download_url, src_dst_set)
+
+            return need_update, remote_publish_date
+        else:
+            return False, None
 
     def deal_asset(self, download_url, src_dst_set):
         unzip_to = self.download_and_unzip(download_url)

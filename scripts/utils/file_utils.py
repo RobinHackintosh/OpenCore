@@ -1,8 +1,25 @@
+import logging
 import os
 import requests
 import shutil
 import zipfile
 from tqdm.auto import tqdm
+from constant import DOWNLOAD_DIR
+
+
+def download_and_unzip(download_url):
+    file_name = download_url.split("/")[-1]
+    store_path = download_file(
+        download_url, DOWNLOAD_DIR, file_name)
+
+    basename = os.path.basename(store_path)
+    file_name = basename[:basename.rindex('.')]
+    unzip_to = os.path.join(DOWNLOAD_DIR, file_name)
+
+    if not os.path.exists(unzip_to):
+        os.makedirs(unzip_to)
+    un_zip(store_path, unzip_to)
+    return unzip_to
 
 
 def download_file(url: str, dest_dir: str, file_name: str):
@@ -10,6 +27,7 @@ def download_file(url: str, dest_dir: str, file_name: str):
         os.makedirs(dest_dir)
 
     store_path = os.path.join(dest_dir, file_name)
+    logging.info(f"start downloading {file_name} to {dest_dir}")
 
     with requests.get(url, stream=True) as r:
         # check header to get content length, in bytes
@@ -49,19 +67,3 @@ def cp(src: str, dst: str):
         shutil.copytree(src, os.path.join(dst, basename))
     else:
         shutil.copy2(src, dst)
-
-
-def _test():
-    _url = "https://github.com/acidanthera/OpenCorePkg/releases/download/0.8.0/OpenCore-0.8.0-DEBUG.zip"
-    from constant import DOWNLOAD_PATH
-    store_path = download_file(_url, DOWNLOAD_PATH, _url.split("/")[-1])
-
-    basename = os.path.basename(store_path)
-    file_name = basename[:basename.rindex('.')]
-    unzip_to = os.path.join(DOWNLOAD_PATH, file_name)
-    if not os.path.exists(unzip_to):
-        os.makedirs(unzip_to)
-
-    un_zip(store_path, unzip_to)
-
-# _test()

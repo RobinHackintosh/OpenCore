@@ -6,3 +6,4 @@ __pycache__a
 *.pyc
 
 tmp/
+third_part/

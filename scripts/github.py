@@ -1,7 +1,10 @@
+import os
 from string import Template
 import string
 import requests
 from datetime import datetime
+
+from utils import file_utils
 
 
 def get_latest_release_info(owner: string, repo: string):
@@ -43,3 +46,24 @@ def has_new_commit(owner: str, repo: str, file_path: str, commit_date: datetime)
 
 def _get(api: string):
     return requests.get(api).json()
+
+
+def get_raw_file_path(owner, repo, path):
+    return f"https://github.com/{owner}/{repo}/blob/master/{path}?raw=true"
+
+
+def download_raw_file(owner, repo, path, store_dir):
+    file_url = f"https://github.com/{owner}/{repo}/blob/master/{path}?raw=true"
+    print(file_url)
+    file_name = path.split("/")[-1]
+    store_path = file_utils.download_file(
+        file_url, store_dir, file_name)
+    return store_path
+
+
+def deal_asset(download_url, src_dst_set):
+    unzip_to = file_utils.download_and_unzip(download_url)
+
+    for src_dst in src_dst_set:
+        src = os.path.join(unzip_to, src_dst[0])
+        file_utils.cp(src, src_dst[1])

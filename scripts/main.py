@@ -1,15 +1,12 @@
 import logging
-import json
 import os.path
 from open_core import OpenCore
-from constant import ROOT_DIR
+from constant import ROOT_DIR, CONFIG_DIR
 
 logging.basicConfig(level=logging.INFO)
 
+package_file_path = os.path.join(CONFIG_DIR, "packages.toml")
+smbios_config_file_path = os.path.join(CONFIG_DIR, "smbios.toml")
 
-def pretty_json(origin_data):
-    print(json.dumps(origin_data, indent=2))
-
-
-opencore = OpenCore(os.path.join(ROOT_DIR, "packages.toml"))
+opencore = OpenCore(package_file_path, smbios_config_file_path)
 opencore.update()
